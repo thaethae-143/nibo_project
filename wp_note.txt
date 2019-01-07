@@ -1,0 +1,504 @@
+﻿http://www.wpbeginner.com/start-a-wordpress-blog/
+
+<================Images Directory=================>
+code==> <?php bloginfo('template_directory'); ?>
+example==> <img src="<?php bloginfo('template_directory'); ?>/common/img/header/logo.png" alt="" />
+
+<=========image shortcode in wordpress=================>
+code ==> [template_uri]/
+example ==> <img src="[template_uri]/img/contact/img.png" alt="" />
+
+In function.php
+---------------
+function template_uri() {
+    return get_template_directory_uri();
+}
+
+add_shortcode("template_uri", "template_uri");
+
+
+<==========file directory in wordpress============>
+/%category%/%postname%/
+
+
+<=================Pages link code==================>
+link
+--------------------
+top_page  ==> <a href="<?php echo site_url(); ?>">HOME</a>/////<?php echo home_url('/'); ?>
+other_page==> <a href="<?php echo get_permalink( get_page_by_path( 'contact' ) ) ?>">お問い合わせ</a></li>
+category  ==> <a href="<?php echo esc_url( get_category_link( get_cat_ID( '施工例' )) ); ?>">施工例</a>
+archive   ==> <a href="<?php echo get_post_type_archive_link( 'blog' ); ?>">ひゃくたけブログ</a>
+single    ==> <a href="<?php the_permalink( ); ?>"><?php the_title(); ?></a>
+
+
+<===================p tag remove=====================>
+/*p tag remove*/
+remove_filter( 'the_content', 'wpautop' );
+remove_filter( 'the_excerpt', 'wpautop' );
+
+
+
+<============Current and active code=================>
+<li><a  href="<?php echo get_home_url(); ?>"  <?php if ( is_page('contact')) { echo ' class="active"'; } ?>>お問い合わせ</a></li>
+<li><a  href="<?php echo get_post_type_archive_link( 'blog' ); ?>"  <?php if ( is_post_type_archive('blog')) { echo ' class="active"'; } ?>>くらゆめブログ</a></li>
+
+.active {
+    background: #cd6601;
+}
+
+
+<===========eye catch image or banner code============>
+<div class="banner clearfix">
+①<?php  echo get_the_post_thumbnail( $post->ID, 'thumbnail' ); ?>
+②<?php echo get_the_post_thumbnail( $post->ID,array( 300, 300 ) ); ?>
+③<?php the_post_thumbnail('thumbnail'); ?>
+<!-- /.banner --></div>
+
+
+<===========For file directory in wordpress===========>
+Configuration-->permalink setting-->custom structure--->/%category%/%postname%/
+
+
+
+<==================else if for banner=================>
+<?php
+if (is_page('voice')) {
+	echo '<div class="banner">
+ <div class="bannerIn">
+   <p class="title">道場生の声</p>
+ </div><!-- bannerIn -->  
+</div> <!-- banner -->  ';
+};
+if (is_page('uk')) {
+	echo '<div class="banner">
+ <div class="bannerIn">
+   <p class="title">Seikukai Karate UK</p>
+ </div><!-- bannerIn -->  
+</div> <!-- banner -->	';
+}
+?>
+
+
+<=============Breadcumb============>
+eg:HOME > ご入会につい  > お問い合わせ
+<div class="inner">
+  <ul class="common_link clearfix">
+  <li><a href="<?php echo site_url(); ?>">HOME</a></li>
+  <?php 
+    if ( is_page('voice')||is_page('flow')||is_page('faq')) { 
+        echo '<li>ご入会について</li>'; 
+    }
+    elseif ( is_page('uk')||is_page('osaka')||is_page('ikeda')||is_page('doujo')) { 
+        echo '<li>各道場紹介</li>';
+    }
+    elseif ( is_page('seikukai')||is_page('class')) {
+        echo '<li>誠空会について</li>';
+    }
+    elseif ( is_page('contact')) {
+        echo '<li>お問い合わせ</li>';
+    }
+?>
+  <li><?php the_title(); ?></li>
+</ul><!-- common_link --> 
+</div><!-- inner --> 
+
+
+
+<========================php shortcode======================>
+
+<?php echo do_shortcode( '[contact-form-7 id="1234" title="Contact form 1"]' ); ?>
+
+
+
+<=====================post per page=========================>
+In function.php
+---------------
+function wpse74325_pre_get_posts( $query ) {
+    if ( $query->is_main_query() && is_category() ) {
+        $query->set( 'posts_per_page', '1' );
+    }
+     if ( is_front_page() ) {
+    $query->set( 'posts_per_page', 4 );
+    }
+    
+}
+add_action( 'pre_get_posts', 'wpse74325_pre_get_posts' );
+
+
+<=======================Index post============================>
+In index.php
+-----------
+  <ul class="top_news clearfix">
+   <?php query_posts('post_type=news&showposts=3&order=DSC&paged='.$paged); ?>
+    <?php if (have_posts()) : ?>
+    <?php while (have_posts()) : the_post(); ?>
+<li class="clearfix"><span class="news_date"><?php the_time('Y.m.d'); ?></span><span class="news_ttl"><a href="<?php the_permalink(); ?>"><?php the_title();  ?></a></span></li>
+  <?php endwhile; ?>
+<?php wp_reset_query();endif; ?>    
+</ul>
+
+
+https://digwp.com/2009/12/limit-posts-without-plugin/
+<====================== single ===========================>
+<?php 
+        while( have_posts() ): the_post();
+        the_content('');
+        endwhile;
+
+        ?>
+*****letter limit section*****
+Instead of <?php the_content();  ?>
+this code
+-------- 
+<?php $content = get_the_content();
+echo mb_substr($content, 0, 60); ?>
+
+
+
+<======================Pagination for post=========================>
+To install==> WP-PageNavi  plugin
+
+In archive-news.php
+------------------
+<div id="pagination">
+      <?php wp_pagenavi(); ?>
+</div><!-- /##pagination -->
+<?php wp_reset_query();endif; ?>
+
+
+
+/*pagination css*/
+#pagination {
+    margin: 0;
+}
+.wp-pagenavi a, .wp-pagenavi span {
+    display: inline-block;
+    background: #f0f0f0;
+    padding: 3px 8px;
+}
+.wp-pagenavi span.current {
+    font-weight: bold;
+    background: #8c8c8c;
+    color: #fff;
+    border: 1px solid #5d5d5d;
+}
+
+sp=====>
+.wp-pagenavi span.pages, a.first, span.extend,
+    a.page.smaller, a.page.larger, a.larger.page,
+    a.last { display: none; }
+
+
+<========================Pagerlink for single.php===========================>
+<div class="link_blk">
+        <p class="pagelink clearfix">
+          <span class="prev"><?php previous_post_link('%link','«前のページ', TRUE); ?></span> ｜ 
+          <span class="next"><?php next_post_link( '%link','次のページ»',  TRUE ); ?></span>
+        </p>
+        <p class="news_page"><a href="<?php echo get_post_type_archive_link( 'event' ); ?>">« イベント情報一覧へ戻る</a></p>
+      </div>
+<span class="prev"><?php previous_post_link('%link','«前のページ'); ?></span> ｜ 
+          <span class="next"><?php next_post_link( '%link','次のページ»'); ?></span>
+css======>
+.pagelink .prev a {
+	display: inline-block;
+}
+.pagelink a {
+	color: #214495;
+	font-size: 15px;
+	border-bottom: 1px solid #214495;
+	line-height: 1.1em;
+}
+.pagelink .next a {
+	display: inline-block;
+}
+.news_page {
+	margin-top: 10px;
+}
+.news_page a {
+	color: #214495;
+	font-size: 15px;
+	display: inline-block;
+	border-bottom: 1px solid #214495;
+	line-height: 1.1em;
+}
+
+
+
+
+
+<====================Template post (page post)=====================>
+<?php global $post;
+   query_posts('category_name=news&order=DSC');?>	
+    <?php if ( have_posts() ) : ?>
+    <?php while ( have_posts() ) : the_post(); ?>
+	<div class="news_sec">
+		<h2 class="ttl02"><?php the_title(); ?></h2>
+		<div class="news_secin">
+			<p class="news_txt"><?php the_content(); ?></p>
+		  </div><!-- .news_secin -->
+	</div><!-- .news_sec -->
+   <?php endwhile; ?>
+   <?php wp_reset_query();?>
+   <?php endif; ?>
+
+
+<====================Post for Custom post type [CPT UI]=====================>
+<?php
+$loop = new WP_Query(array("post_type" => "blog","posts_per_page" => 16,"paged"=>$paged));
+if ( $loop->have_posts() ) : while($loop->have_posts()): $loop->the_post();
+?>
+      <div class="blog_left">
+        <p class="blog_txt01"><?php the_time('Y年m月d日'); ?></p>
+        <div class="left">
+        <img src="<?php  echo get_the_post_thumbnail( $post->ID, 'thumbnail' ); ?>
+        </div>
+        <div class="right clearfix">
+        <p class="blog_txt02"><?php the_title(); ?></p>
+        <p><?php the_content(); ?></p>
+        </div>
+      </div><!-- blog_left !-->
+<?php endwhile; endif; ?>
+
+
+
+<======================Protect password in custom filed======================>
+Firstly,to install
+1.Advanced Custom Fields plugin
+
+*** Necessary for password===>「<?php the_content(); ?>」 *****
+
+ <?php if (have_posts()) : ?>
+    <?php while (have_posts()) : the_post(); ?>
+<p class="txt_none"><?php the_content(); ?></p>
+<?php if( !post_password_required( $post )): ?>
+            <p class="job_date">投稿日時: <?php the_field('date');?></p> 
+          <table class="job_table">
+            <tr>
+              <td>勤務時間</td>
+              <td><?php if(get_field('job_txt02')): 
+                the_field('job_txt02');
+                endif;
+                ?></td>
+              </tr>
+              </table>
+
+           <?php if(get_field('station')): ?>
+              <table class="job_table">
+              <tr>
+                <td><?php the_field('station');?> </td>
+                <td><?php if(get_field('job_txt03')): 
+                the_field('job_txt03');
+                endif;
+                ?></td>
+              </tr>
+              </table>
+           <?php endif;?>
+
+           <?php endif; ?>
+  <?php endwhile; ?>
+<?php wp_reset_query();endif; ?>    
+
+
+
+
+<========================For categories=================================>
+Firstly,to install
+1.Advanced Custom Fields plugin
+2.WP Remove Category Base
+
+<?php if (is_category('project')) : ?>
+<ul class="project_post clearfix">
+			<?php
+			query_posts('posts_per_page=12&category_name=project&paged='.$paged);
+		if (have_posts()) : ?> 
+		<?php while ( have_posts() ): the_post(); ?>
+			
+            <li class="gallery"><a href="<?php the_permalink() ?>">
+            <?php $image01 = get_field('image01',$post->ID);
+        if( !empty($image01) ): ?>
+        <img src="<?php echo $image01['url']; ?>" alt="<?php echo $image01['alt']; ?>" />
+      <?php endif;?></a>
+             <p class="txt01"><a href="<?php the_permalink() ?>"><?php the_title(); ?></a></p></li>
+             <?php endwhile; ?>
+           </ul><!-- project_post -->
+<?php wp_reset_query();endif; ?>
+
+
+<?php elseif (is_category('施設')) : ?>
+<ul class="project_post clearfix">
+      <?php
+      query_posts('posts_per_page=10&category_name=facility&paged='.$paged);
+    if (have_posts()) : ?> 
+    <?php while ( have_posts() ): the_post(); ?>
+      
+            <li class="gallery"><a href="<?php the_permalink() ?>">
+            <?php $image01 = get_field('image01',$post->ID);
+        if( !empty($image01) ): ?>
+        <img src="<?php echo $image01['url']; ?>" alt="<?php echo $image01['alt']; ?>" />
+      <?php endif;?></a>
+             <p class="txt01"><a href="<?php the_permalink() ?>"><?php the_title(); ?></a></p></li>
+             <?php endwhile; ?>
+           </ul><!-- project_post -->
+<?php wp_reset_query();endif; ?>
+
+
+/*************wp_list_categories**************/
+<?php 
+$cat_id = get_cat_ID('news'); 
+  wp_list_categories( array(
+        'orderby'    => 'name',
+        'child_of'   => $cat_id,
+        'show_count' => false
+    ) ); ?>
+////////////
+<ul>
+    <?php wp_list_categories( array(
+        'orderby'            => 'id',
+        'show_count'         => true,
+        'use_desc_for_title' => false,
+        'child_of'           => 8
+    ) ); ?>
+</ul>
+
+/***************************/
+a[href^="tel"]{
+    color:inherit;
+    text-decoration:none;
+}
+
+
+
+/***************Multiple single.php templates in WordPress************/
+<?php
+if (in_category('owner')) {include (TEMPLATEPATH . '/single-owner.php');
+}
+else { include (TEMPLATEPATH . '/single-news.php');
+}
+?>
+
+
+/***************wp_get_recent_posts************/
+ <?php
+  //$recent_posts = wp_get_recent_posts();
+  //foreach( $recent_posts as $recent ){
+    //echo '<li><a href="' . get_permalink($recent["ID"]) . '">' .   $recent["post_title"].'</a> </li> ';
+  //}
+  //wp_reset_query();
+
+$the_query = new WP_Query( array( 'cat' => $cat_id ) );
+
+ 
+// The Loop
+if ( $the_query->have_posts() ) {
+  
+  while ( $the_query->have_posts() ) {
+    $the_query->the_post();
+    echo '<li><a href="';
+     the_permalink() ;
+     echo '">' . get_the_title() . '</li>';
+  }
+  
+  /* Restore original Post Data */
+  wp_reset_postdata();
+} else {
+  // no posts found
+}
+ 
+?> 
+
+
+/***************navigation-menus-in-wordpress************/
+
+http://www.wpbeginner.com/wp-themes/how-to-add-custom-navigation-menus-in-wordpress-3-0-themes/
+http://www.wpbeginner.com/beginners-guide/how-to-add-navigation-menu-in-wordpress-beginners-guide/
+
+/***************ACF Photo Gallery************/
+ACF Photo Gallery Field — WordPress Plugins
+https://vimeo.com/63019474
+
+/***************bizcalendar************/
+http://residentbird.main.jp/bizplugin/plugins/bizcalendar/
+
+
+<================Call Categories Name and Slug=================>
+<?php $categories = get_the_category();
+ 
+if ( ! empty( $categories ) ) {
+    echo esc_html( $categories[0]->slug );   
+}    ?>
+
+--------------------
+<?php global $post;
+             $postcat = get_the_category( $post->ID );
+             if ( ! empty( $postcat ) ) {
+              $catslug= esc_html( $postcat[0]->slug );
+            } ?>
+
+https://developer.wordpress.org/reference/functions/get_the_category/
+https://www.wpbeginner.com/wp-themes/how-to-add-custom-navigation-menus-in-wordpress-3-0-themes/
+https://www.wpbeginner.com/beginners-guide/how-to-add-navigation-menu-in-wordpress-beginners-guide/
+https://www.wpbeginner.com/glossary/navigation-menus/
+https://codex.wordpress.org/Conditional_Tags
+https://wordpress.stackexchange.com/questions/61915/custom-single-post-by-category
+
+
+https://developer.wordpress.org/reference/functions/get_posts/
+https://wpdocs.osdn.jp/%E9%96%A2%E6%95%B0%E3%83%AA%E3%83%95%E3%82%A1%E3%83%AC%E3%83%B3%E3%82%B9/is_category
+
+
+<================WP CSV Exporter  And Importer=================>
+参考link----->https://hajipro.com/wordpress/really-simple-csv-importer
+WP CSV Exporter Plugin
+Really Simple CSV Importer Plugin
+
+
+<================Category For Pages=================>
+参考link----->https://wordpress.org/plugins/add-category-to-pages/
+Plugin-->Category For Pages
+Adds categories and tags functionality for your pages.
+
+
+<================Change URL In Server=================>
+RewriteRule ^knowledge/couse$ /knowledge/couse/ [R=301,QSA]
+RewriteRule ^knowledge/couse/$ /truecouse.html [QSA,L]
+
+<================new information in WordPress and embed it in static HTML=================>
+https://wp.turbo-w.com/wordpress_news_topics_1.html
+https://techmemo.biz/web-cheat-sheet/static-html-wordpress/
+
+<================new icon=================>
+<?php
+$post_date = get_the_date("Y-m-d");
+$d=strtotime("$post_date +1 Months");
+$post_1month = date("Y-m-d", $d);
+$today = date("Y-m-d");
+if (date("Y-m-d") < $post_1month) { ?>
+<span class="new-btn">New</span>
+<?php }
+?>
+
+
+
+<================parentcategoryName=================>
+<?php
+foreach((get_the_category()) as $category) { 
+    echo $category->cat_name . ' '; 
+}
+?>
+<================subcategoryName=================>
+<?php
+     foreach((get_the_category()) as $category) {
+       if($category->parent) { // check if this category has a parent
+          echo $category->cat_name; 
+       }
+     } 
+
+?>
+<================adding p tag and br tag for post type  =================>
+function smart_autop($content) {
+    $post = get_post();
+    if($post->post_type != 'post') return $content; // if not a post, leave $content untouched
+    return wpautop($content);
+}
+add_filter( 'the_content', 'smart_autop' );
